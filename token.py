@@ -1,6 +1,7 @@
 '''
 token_pc 和 tokenize_cpp 函数的实现
 '''
+import file
 def tokenize_cpp(code: str):
     '''
     tokenize_cpp 的 Docstring
@@ -143,8 +144,79 @@ def token_pc(code: list[str]):
     '''
     pc_list=[]
     hi=0
+    pc=0
     for i in range(len(code)):
         if code[i]=='\n':
-            pc_list.append( (hi,i) )
+            pc+=1
+            pc_list.append( (hi,i,pc) )
             hi=i+1
     return pc_list
+def in_code_dkh(code=file.code):
+    '''
+    插入大括号
+    具体对应for if else while switch do catch等代码块
+    省略的大括号补全
+    '''
+    for t in code:
+        if t ==')' and code[t+1] != ';' and code[t+1] !='{':
+            file.in_code(t+1, '{')
+def code_pc_is_none(code=file.code):
+    '''
+    检查是否需要忽略
+    '''
+    hl_h_list=['enum','struct','class','union']#忽略关键词
+    hl_list=[]#格式:(开始行号,结束行号)
+    re_e_list={'}':'{',
+               ']':'[',
+               ')':'('}
+    strak=[]#栈
+    strak_id=[]#栈对应行号
+    i=0#行号
+    while i<len(code):
+        if len(strak)==0:
+            if code[i] in hl_h_list:
+                while code[i]!='{':
+                    i+=1
+                strak.append(code[i])
+                strak_id.append(i)
+        else:
+            if code[i] in re_e_list.values():
+                strak.append(code[i])
+            elif code[i] in re_e_list.keys():
+                while re_e_list[code[i]]!=strak[-1]:
+                    strak.pop()
+                    strak_id.pop()
+                strak.pop()
+                hl_list.append( (strak_id[-1],i) )
+                strak_id.pop()
+            else:
+                pass
+        i+=1
+    return hl_list
+#hl_list=code_pc_is_none()
+def code_block(code=file.code):
+    '''
+    code的整体块
+    '''
+    block_list=['for', 
+                'if',
+                'else',
+                'while',
+                'switch',
+                'do',
+                'catch',
+    ]
+    h_p=0
+    type_a=0
+    for i in range(len(code)):
+        if code[i] in block_list:
+            h_p=i
+            while code[i]!='{':
+                i+=1
+            block.append((h_p, i))
+        else:
+            h_p=i
+            while code[i]!=';':
+                i+=1
+            block.append((h_p, i))
+        i+=1

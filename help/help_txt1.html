@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>rin_os 开发文档</title>
+<style>
+  :root{
+    --bg:#000;
+    --fg:#fff;
+    --accent:#00FFFF;
+  }
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--fg);
+    font-family:system-ui,Arial;
+    display:flex;
+    height:100vh;
+  }
+  /*======== 左侧点击栏 ========*/
+  #sidebar{
+    width:200px;
+    background:#111;
+    padding:10px;
+    overflow-y:auto;
+  }
+  #sidebar button{
+    width:100%;
+    text-align:left;
+    background:none;
+    border:none;
+    color:var(--fg);
+    padding:8px 10px;
+    cursor:pointer;
+    transition:.2s;
+  }
+  #sidebar button:hover{
+    background:rgba(0,255,255,.2);
+  }
+  #sidebar button.active{
+    background:var(--accent);
+    color:#000;
+  }
+  /*======== 右侧文献区 ========*/
+  #content{
+    flex:1;
+    padding:20px;
+    overflow-y:auto;
+  }
+  section.page{
+    display:none;
+  }
+  section.page.active{
+    display:block;
+  }
+</style>
+</head>
+<body>
+
+<aside id="sidebar">
+  <button data-page="home" class="active">🏠 首页</button>
+  <button data-page="code_file_struct">原代码文件api</button>
+  <button data-page="about">关于</button>
+</aside>
+
+<main id="content">
+  <!-- 主页 -->
+  <section id="home" class="page active">
+    <h1>具体实现监测插桩</h1>
+    <p>欢迎来到 io-xray-cppcode 单页文档。点击左侧栏目即可切换不同章节。</p>
+    <p>呜呜，好难啊，可以支持一下吗</p>
+    <img src="help_txt_file/哭.png" alt="哭" >
+  </section>
+  <!-- 源代码文件结构 -->
+  <section id="code_file_struct" class="page">
+    <h1>原代码文件结构</h1>
+    <p>这里是文件的api</p>
+    <dl>
+        <dt>├gui.py<font color="#00FFFF">[图形界面]</font></dt>
+        <dt>├file.py<font color="#00FFFF">[文件操作]</font></dt>
+            <dd>.in_code(pc:int, code:str)<font color="#00FFFF">[插入代码]</font></dd>
+            <dd>.read_code()->list<font color="#00FFFF">[读代码文件]</font></dd>
+            <dd>.sleep_code_file()<font color="#00FFFF">[写入代码文件]</font></dd>
+        <dt>├in_log_code.py<font color="#00FFFF">[日志插入]</font></dt>
+            <dd>.filecode_to_log()<font color="#00FFFF">[使执行体写入日志]</font></dd>
+            <dd>.code_pc_is_none()<font color="#00FFFF">[检查是否需要忽略]</font></dd>
+            <dd>.code_block()<font color="#00FFFF">[代码块的整体信]</font></dd>
+        <dt>├main.py<font color="#00FFFF">[主程序]</font></dt>
+        <dt>├token.py<font color="#00FFFF">[切词器]</font></dt>
+            <dd>.tokenize_cpp(code: str)<font color="#00FFFF">[切词]</font></dd>
+            <dd>.token_pc(code: list[str])<font color="#00FFFF">[获取行号]</font></dd>
+    </dl>
+  </section>
+  <!-- 关于 -->
+  <section id="about" class="page">
+    <h1>关于</h1>
+    <p>Rin OS 是一个轻量级微内核操作系统，旨在提供简洁高效的用户体验。</p>
+    <p>版本:0.1.0</p>
+    <p>作者: jhca(ymobI:2996143596@qq.com)</p>
+    <a href="https://space.bilibili.com/3546619865729620?spm_id_from=333.788.0.0">up B站: 易默白</a>
+    <img src="help_txt_file/作者.png" alt="Rin OS 关于 作者头像" >
+    <img src="https://i2.hdslb.com/bfs/face/466a28e93211a0fb555f86d3d7c1e20be95e3ec5.jpg@240w_240h_1c_1s_!web-avatar-nav.webp" >
+    <p>许可证: MIT</p>
+  </section>
+</main>
+
+<script>
+/* 极简切换器：点按钮 -> 切换 .active */
+document.querySelectorAll('#sidebar button').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    // 1. 按钮高亮
+    document.querySelector('#sidebar button.active').classList.remove('active');
+    btn.classList.add('active');
+    // 2. 对应文献出现
+    const want = btn.dataset.page;
+    document.querySelector('section.page.active').classList.remove('active');
+    document.getElementById(want).classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

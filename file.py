@@ -8,7 +8,7 @@ sleep_code_file() 用于将code写入文件
 import token
 end_add_code = []#格式:行号->代码
 code=[]
-def write_code(pc:int, code:str):
+def in_code(pc:int, code:str):
     '''
     用于写入code
     '''
