@@ -1,41 +1,44 @@
 '''
 用于对code进行读写
-write_code(pc:int, code:str) 用于写入code
-read_code() 读取code
-sleep_code_file() 用于将code写入文件
 '''
-
 import token
-end_add_code = []#格式:行号->代码
-code=[]
-def in_code(pc:int, code:str):
-    '''
-    用于写入code
-    '''
-    global end_add_code
-    end_add_code.append((pc,code))
 
-def read_code():
-    '''
-    读取code
-    '''
-    global code
-    code=token.tokenize_cpp(
-        open("code.cpp","r").read()
-    )
-    return code
+# 存储待插入的代码片段
+_pending_inserts = []  # 格式: (token_idx, code_str)
 
-def sleep_code_file():
+def schedule_insert(token_idx: int, code: str):
     '''
-    用于将code写入文件
+    计划在某token索引后插入代码片段
     '''
-    global code,end_add_code
-    pc_list=token.token_pc(code)
-    with open("code.cpp","w") as f:
-        for pc,add_code in end_add_code:
-            try:
-                code.insert(pc_list[pc][0],add_code)
-            except:
-                code.append(add_code)
-        for i in range(len(code)):
-            f.write(code[i])
+    global _pending_inserts
+    _pending_inserts.append((token_idx, code))
+
+def read_code(filename: str = "code.cpp") -> list[str]:
+    '''
+    读取C++文件并返回token列表
+    '''
+    with open(filename, "r", encoding="utf-8") as f:
+        content = f.read()
+    return token.tokenize_cpp(content)
+
+def write_code(tokens: list[str], filename: str = "code.cpp"):
+    '''
+    将token列表写入文件，并执行所有计划的插入
+    '''
+    global _pending_inserts
+    # 按token索引降序排序，避免插入位置偏移
+    _pending_inserts.sort(key=lambda x: x[0], reverse=True)
+    
+    # 执行插入
+    for idx, code in _pending_inserts:
+        if idx < len(tokens):
+            tokens.insert(idx + 1, code)
+        else:
+            tokens.append(code)
+    
+    # 写入文件
+    with open(filename, "w", encoding="utf-8") as f:
+        f.write(''.join(tokens))
+    
+    # 清空待插入列表
+    _pending_inserts.clear()

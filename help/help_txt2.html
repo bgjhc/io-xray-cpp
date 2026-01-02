@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>io-xray-cppcode 开发文档</title>
+<style>
+  :root{
+    --bg:#000;
+    --fg:#fff;
+    --accent:#00FFFF;
+  }
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--fg);
+    font-family:system-ui,Arial;
+    display:flex;
+    height:100vh;
+  }
+  /*======== 左侧点击栏 ========*/
+  #sidebar{
+    width:200px;
+    background:#111;
+    padding:10px;
+    overflow-y:auto;
+  }
+  #sidebar button{
+    width:100%;
+    text-align:left;
+    background:none;
+    border:none;
+    color:var(--fg);
+    padding:8px 10px;
+    cursor:pointer;
+    transition:.2s;
+  }
+  #sidebar button:hover{
+    background:rgba(0,255,255,.2);
+  }
+  #sidebar button.active{
+    background:var(--accent);
+    color:#000;
+  }
+  /*======== 右侧文献区 ========*/
+  #content{
+    flex:1;
+    padding:20px;
+    overflow-y:auto;
+  }
+  section.page{
+    display:none;
+  }
+  section.page.active{
+    display:block;
+  }
+  code{
+    background:#222;
+    padding:2px 5px;
+    border-radius:3px;
+    font-family:'Courier New',monospace;
+  }
+</style>
+<base target="_blank">
+</head>
+
+<body>
+
+<aside id="sidebar">
+  <button data-page="home" class="active">🏠 首页</button>
+  <button data-page="code_file_struct">API 参考</button>
+  <button data-page="usage">使用教程</button>
+  <button data-page="about">关于</button>
+</aside>
+
+<main id="content">
+  <!-- 主页 -->
+  <section id="home" class="page active">
+    <h1>io-xray-cppcode 插桩工具</h1>
+    <p><strong>io-xray-cppcode</strong> 是一个C++代码动态分析工具，通过自动插入调试日志语句，实现运行时变量监控。</p>
+    <p>核心功能：</p>
+    <ul>
+      <li>自动识别变量并插入追踪代码</li>
+      <li>保留代码原始结构（支持98% C++语法）</li>
+      <li>生成可读的十六进制/十进制值日志</li>
+      <li>支持条件编译（<code>ONLINE_JUDGE_ONE</code>宏控制）</li>
+    </ul>
+    <p>特别适合算法竞赛代码调试和运行时行为分析。</p>
+  </section>
+
+  <!-- API 参考 -->
+  <section id="code_file_struct" class="page">
+    <h1>模块API参考</h1>
+    <p>项目采用模块化设计，各组件职责清晰：</p>
+    <dl>
+        <dt>├token.py <font color="#00FFFF">[词法分析器]</font></dt>
+            <dd>• <code>tokenize_cpp(code: str) → list[str]</code><br/>
+                <font color="#00FFFF">将C++代码字符串分割为token</font></dd>
+            <dd>• <code>token_pc(tokens) → list[tuple]</code><br/>
+                <font color="#00FFFF">获取每行token的起止索引</font></dd>
+            <dd>• <code>get_ignore_ranges(tokens)</code><br/>
+                <font color="#00FFFF">识别class/struct等不应插桩的代码块</font></dd>
+        
+        <dt>├file.py <font color="#00FFFF">[文件操作]</font></dt>
+            <dd>• <code>schedule_insert(idx: int, code: str)</code><br/>
+                <font color="#00FFFF">计划在某token后插入代码</font></dd>
+            <dd>• <code>read_code(filename) → list[str]</code><br/>
+                <font color="#00FFFF">读取并tokenize代码文件</font></dd>
+            <dd>• <code>write_code(tokens, filename)</code><br/>
+                <font color="#00FFFF">执行插入并写回文件</font></dd>
+        
+        <dt>├in_log_code.py <font color="#00FFFF">[插桩引擎]</font></dt>
+            <dd>• <code>extract_identifiers(code_str)</code><br/>
+                <font color="#00FFFF">提取非关键字标识符</font></dd>
+            <dd>• <code>instrument_code(tokens, original_code)</code><br/>
+                <font color="#00FFFF">核心函数：执行日志代码插入</font></dd>
+            <dd>• <code>main()</code><br/>
+                <font color="#00FFFF">工具入口：读→插桩→写</font></dd>
+        
+        <dt>├main.py <font color="#00FFFF">[遗留代码]</font></dt>
+            <dd style="color:#888">平台检测功能（已弃用）</dd>
+    </dl>
+  </section>
+
+  <!-- 使用教程 -->
+  <section id="usage" class="page">
+    <h1>快速开始</h1>
+    <h3>1. 准备代码</h3>
+    <p>将你的C++代码保存为 <code>code.cpp</code>，创建输入文件 <code>code_in.txt</code>（可选）。</p>
+    
+    <h3>2. 运行插桩</h3>
+    <pre style="background:#111;padding:10px;">
+python in_log_code.py</pre>
+    
+    <h3>3. 编译运行</h3>
+    <pre style="background:#111;padding:10px;">
+g++ code.cpp -o myprogram
+./myprogram  # 自动输出日志到 code_log.txt</pre>
+    
+    <h3>日志格式</h3>
+    <p>每行日志：<code>行号:作用域深度:mem:token索引:类型名:十六进制值</code></p>
+    <p>示例：</p>
+    <pre style="background:#111;padding:10px;color:#0ff;">
+12:1:mem:45:i:7b
+12:1:mem:47:j:ffffffff</pre>
+  </section>
+
+  <!-- 关于 -->
+  <section id="about" class="page">
+    <h1>关于项目</h1>
+    <p><strong>io-xray-cppcode</strong> 是一个轻量级的C++代码动态分析工具。</p>
+    <p>版本: 0.2.0（重构版）</p>
+    <p>作者: jhca (contact: 2996143596@qq.com,<a href="https://space.bilibili.com/3546619865729620">bilibili</a>)</p>
+    <p>许可证: MIT License</p>
+    <p>项目GitHub: <a href="https://github.com/bgjhc/io-xray-cpp" style="color:#00FFFF">io-xray-cpp</a></p>
+    <hr style="border-color:#00FFFF;margin:20px 0;">
+    <p style="font-size:12px;color:#888;">
+      注意：本工具处于早期开发阶段，建议备份源码后使用。<br/>
+      重构版本修复了循环导入、位置计算错误等核心bug。
+    </p>
+  </section>
+</main>
+
+<script>
+/* 极简切换器：点按钮 -> 切换 .active */
+document.querySelectorAll('#sidebar button').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    // 1. 按钮高亮
+    document.querySelector('#sidebar button.active').classList.remove('active');
+    btn.classList.add('active');
+    // 2. 对应文献出现
+    const want = btn.dataset.page;
+    document.querySelector('section.page.active').classList.remove('active');
+    document.getElementById(want).classList.add('active');
+  });
+});
+</script>
+</body>
+</html>
