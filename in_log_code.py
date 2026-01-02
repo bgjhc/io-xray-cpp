@@ -4,6 +4,7 @@
 import re
 import token as token_mod
 import file
+import in_log_code
 
 # C++保留关键字集合
 RESERVED_KEYWORDS = {
@@ -45,11 +46,11 @@ def insert_debug_headers():
     在代码文件开头插入调试相关的头文件和宏定义
     '''
     header_code = '''
+#include <bits/stdc++.h>
 #ifndef ONLINE_JUDGE_ONE
     freopen("code_in.txt", "r", stdin);
     freopen("code_log.txt", "w", stdout);
 #endif
-#include <bits/stdc++.h>
 int __ONLINE_JUDGE_ONE_START_SIZE__ = 0;
 class __ONLINE_JUDGE_ONE_IN_FN__ {
 public:
@@ -117,14 +118,33 @@ def instrument_code(tokens: list[str], original_code: str):
         
         # 准备日志代码
         log_code = f'''
-#ifndef ONLINE_JUDGE_ONE
-    std::cout << "{line_num}:" << __ONLINE_JUDGE_ONE_START_SIZE__ << ":mem:{token_idx}:" 
-              << typeid({safe_var_name}).name() << ':' << std::hex << {safe_var_name} << std::dec << std::endl;
-#endif
-'''
+std::cout << "{line_num}:" << __ONLINE_JUDGE_ONE_START_SIZE__ << ":mem:{token_idx}:" 
+      << typeid({safe_var_name}).name() << ':' << std::hex << {safe_var_name} << std::dec << std::endl;
+'''#行号:栈深度:mem:token_idx:类型名:变量值
         # 在该token之后插入
         file.schedule_insert(token_idx, log_code)
 
+def instrument_code1(tokens: list[str]):
+    '''
+    对token列表进行插桩，插入日志代码
+    tokens: 代码的token列表
+    该函数会在每个变量使用后插入日志代码，记录变量的类型和值
+    '''
+    #key_word = in_log_code.extract_identifiers(tokens)
+    key_word_list = token_mod.key_word(tokens)
+    for i in key_word_list:
+        pass#[待完成]
+    #print(extract_identifiers(tokens))
+
+
+"""
+        log_code = f'''
+std::cout << "{pc}:" << __ONLINE_JUDGE_ONE_START_SIZE__ << ":mem:{token_idx}:" 
+      << typeid({safe_var_name}).name() << ':' << std::hex << {safe_var_name} << std::dec << std::endl;
+'''#行号:栈深度:mem:token_idx:类型名:变量值
+        # 在该token之后插入
+        file.schedule_insert(token_idx, log_code)
+"""
 def main():
     """主函数：读取代码、插桩、写回"""
     # 读取原始代码
@@ -138,7 +158,8 @@ def main():
     insert_debug_headers()
     
     # 插桩
-    instrument_code(tokens, original_code)
+    #instrument_code(tokens, original_code)
+    instrument_code1(tokens)
     
     # 写回文件
     file.write_code(tokens)

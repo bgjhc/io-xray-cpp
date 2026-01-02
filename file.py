@@ -38,7 +38,7 @@ def write_code(tokens: list[str], filename: str = "code.cpp"):
     
     # 写入文件
     with open(filename, "w", encoding="utf-8") as f:
-        f.write(''.join(tokens))
+        f.write(' '.join(tokens))
     
     # 清空待插入列表
     _pending_inserts.clear()

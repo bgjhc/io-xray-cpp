@@ -2,7 +2,7 @@
 token_pc 和 tokenize_cpp 函数的实现
 '''
 import re
-
+from in_log_code import RESERVED_KEYWORDS as RESERVED_KEYWORDS
 def tokenize_cpp(code: str) -> list[str]:
     '''
     将C++代码字符串分割成token列表，保留注释和字符串字面量完整性。
@@ -208,3 +208,54 @@ def code_block(tokens: list[str]) -> list[tuple[int, int]]:
         i += 1
     
     return block_ranges
+
+def code_block(tokens: list[str]) -> list[tuple[int, int]]:
+    '''
+    重构code_block函数，识别不可分割的代码块（如for/if/while等控制语句）
+    返回 [(block_start_idx, block_end_idx), ...]
+    '''
+    block_keywords = {'for', 'if', 'else', 'while', 'switch', 'do', 'catch'}
+    block_ranges = []
+
+    i = 0
+    n = len(tokens)
+    while i < n:
+        if tokens[i] in block_keywords:
+            start_idx = i
+            # 跳过关键字，找到代码块结束（; 或 {）
+            while i < n and tokens[i] not in {';', '{', '\n'}:
+                i += 1
+            if i < n and tokens[i] == '{':
+                # 匹配大括号
+                brace_count = 1
+                i += 1
+                while i < n and brace_count > 0:
+                    if tokens[i] == '{':
+                        brace_count += 1
+                    elif tokens[i] == '}':
+                        brace_count -= 1
+                    i += 1
+                block_ranges.append((start_idx, i - 1))
+            elif i < n and tokens[i] == '#':
+                # 预处理指令，找到行尾
+                while i < n and tokens[i] != '\n':
+                    i += 1
+                block_ranges.append((start_idx, i - 1))
+            else:
+                # 单行语句
+                block_ranges.append((start_idx, i))
+
+        i += 1
+
+    return block_ranges
+
+def key_word(tokens: list[str]) -> list[str]:
+    '''
+    提取代码中的所有标识符（变量名、函数名等）
+    返回标识符列表
+    '''
+    key_word_list = []
+    for i in range(len(tokens)):
+        if tokens[i] not in RESERVED_KEYWORDS and tokens[i].isidentifier():
+            key_word_list.append(i)
+    return key_word_list
