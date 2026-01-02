@@ -132,9 +132,19 @@ def instrument_code1(tokens: list[str]):
     '''
     #key_word = in_log_code.extract_identifiers(tokens)
     key_word_list = token_mod.key_word(tokens)
-    for i in key_word_list:
-        pass#[待完成]
-    #print(extract_identifiers(tokens))
+    hl_list = token_mod.code_block(tokens)
+    pc_list = token_mod.token_pc(tokens)
+    pc=pc_list[0][2]
+    hl=hl_list[0]
+    for i in key_word_list:#遍历所有标识符
+        while pc_list[0][1] < i:#使行同步
+            del pc_list[0]
+        while hl_list[0][1] < i:#注意忽略
+            del hl_list[0]
+        if hl_list[0][1] > i:#不在忽略区
+            #file.schedule_insert(tokens[i])
+            pass#[待完成]
+
 
 
 """

@@ -10,10 +10,10 @@ public:
     __ONLINE_JUDGE_ONE_IN_FN__() { __ONLINE_JUDGE_ONE_START_SIZE__++; }
     ~__ONLINE_JUDGE_ONE_IN_FN__() { __ONLINE_JUDGE_ONE_START_SIZE__--; }
 };
- 
- 
- 
- 
- # include < bits / stdc + + . h > 
- int a = 1 ; 
- int b = 0 ;
+
+
+
+
+# include < bits / stdc + + . h > 
+int a = 1 ; 
+int b = 0 ;
